@@ -5,9 +5,11 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 
-import org.jdom.*;
-import org.jdom.input.*;
-import org.jdom.output.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+import org.w3c.dom.*;
 
 class Schematic extends JPanel {
 
@@ -548,12 +550,12 @@ class Schematic extends JPanel {
       clear();
 
       // Parse the document.
-      SAXBuilder builder = new SAXBuilder();
-      Document doc = builder.build(stream);
-      Element root = doc.getRootElement();
-      java.util.List children = root.getChildren();
-      for(Object obj : children) {
-         Element e = (Element)obj;
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document doc = builder.parse(stream);
+      XMLElement root = new XMLElement(doc);
+      XMLElement[] children = root.getChildren();
+      for(XMLElement e : children) {
          if(e.getName().equals("Wire")) {
             parts.add(new WireInstance(e));
          } else if(e.getName().equals("Part")) {
@@ -578,8 +580,10 @@ class Schematic extends JPanel {
 
 
       // Create the document.
-      Element root = new Element("Schematic");
-      Document doc = new Document(root);
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document doc = builder.newDocument();
+      XMLElement root = new XMLElement(doc, "Schematic");
 
       // Save all parts.
       for(BaseInstance i : parts) {
@@ -587,8 +591,11 @@ class Schematic extends JPanel {
       }
 
       // Write the document.
-      XMLOutputter outputter = new XMLOutputter();
-      outputter.output(doc, stream);
+      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      Transformer transformer = transformerFactory.newTransformer();
+      DOMSource source = new DOMSource(doc);
+      StreamResult result = new StreamResult(stream);
+      transformer.transform(source, result);
 
    }
 

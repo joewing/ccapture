@@ -3,8 +3,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import org.jdom.*;
-
 class PartInstance extends BaseInstance {
 
    public PartInstance(Part p, int x, int y, int rotation) {
@@ -13,7 +11,7 @@ class PartInstance extends BaseInstance {
       move(x, y);
    }
 
-   public PartInstance(Part p, Element e) throws Exception {
+   public PartInstance(Part p, XMLElement e) throws Exception {
       part = p;
 
       String xstr = e.getAttributeValue("x");
@@ -110,9 +108,8 @@ class PartInstance extends BaseInstance {
 
    }
 
-   public void save(Element root) {
-      Element e = new Element("Part");
-      root.addContent(e);
+   public void save(XMLElement root) {
+      XMLElement e = root.createChild("Part");
       e.setAttribute("type", part.getName());
       e.setAttribute("rotation", Integer.toString(rotation));
       e.setAttribute("x", Integer.toString(x));

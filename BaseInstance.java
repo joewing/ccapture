@@ -3,8 +3,6 @@ import java.awt.*;
 import java.io.*;
 import javax.swing.*;
 
-import org.jdom.*;
-
 abstract class BaseInstance {
 
    public abstract int getX();
@@ -25,7 +23,7 @@ abstract class BaseInstance {
 
    public abstract void updateMenu(Schematic schematic, JPopupMenu menu);
 
-   public abstract void save(Element root);
+   public abstract void save(XMLElement root);
 
 }
 

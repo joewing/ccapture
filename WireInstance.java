@@ -3,8 +3,6 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-import org.jdom.*;
-
 class WireInstance extends BaseInstance {
 
    public WireInstance(int x1, int y1, int x2, int y2) {
@@ -14,7 +12,7 @@ class WireInstance extends BaseInstance {
       this.y2 = y2;
    }
 
-   public WireInstance(Element e) throws Exception {
+   public WireInstance(XMLElement e) throws Exception {
 
       String x1str = e.getAttributeValue("x1");
       if(x1str == null) {
@@ -135,9 +133,8 @@ class WireInstance extends BaseInstance {
    public void updateMenu(Schematic schematic, JPopupMenu menu) {
    }
 
-   public void save(Element root) {
-      Element e = new Element("Wire");
-      root.addContent(e);
+   public void save(XMLElement root) {
+      XMLElement e = root.createChild("Wire");
       e.setAttribute("x1", Integer.toString(x1));
       e.setAttribute("y1", Integer.toString(y1));
       e.setAttribute("x2", Integer.toString(x2));

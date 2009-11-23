@@ -3,8 +3,9 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.*;
-import org.jdom.*;
-import org.jdom.input.*;
+
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
 
 class Part {
 
@@ -23,24 +24,24 @@ class Part {
       public int radius;
    }
 
-   public static Part load(File file) throws Exception {
+   public static Part load(InputStream stream) throws Exception {
 
       Part part = new Part();
 
-      SAXBuilder builder = new SAXBuilder();      
-      Document doc = builder.build(file);
-      Element root = doc.getRootElement();
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document doc = builder.parse(stream);
+      XMLElement root = new XMLElement(doc);
 
-      Element nameElement = root.getChild("Name");
+      XMLElement nameElement = root.getChild("Name");
       if(nameElement == null) {
          throw new Exception("Name not set");
       }
       part.name = nameElement.getTextNormalize();
 
-      Element drawElement = root.getChild("Draw");
+      XMLElement drawElement = root.getChild("Draw");
       if(drawElement != null) {
-         for(Object obj : drawElement.getChildren()) {
-            Element e = (Element)obj;
+         for(XMLElement e : drawElement.getChildren()) {
             if(e.getName().equals("Line")) {
                parseLine(part, e);
             } else if(e.getName().equals("Rect")) {
@@ -51,10 +52,9 @@ class Part {
          }
       }
 
-      Element connectionsElement = root.getChild("Connections");
+      XMLElement connectionsElement = root.getChild("Connections");
       if(connectionsElement != null) {
-         for(Object obj : connectionsElement.getChildren()) {
-            Element e = (Element)obj;
+         for(XMLElement e : connectionsElement.getChildren()) {
             if(e.getName().equals("Terminal")) {
                parseTerminal(part, e);
             }
@@ -65,7 +65,7 @@ class Part {
 
    }
 
-   private static void parseLine(Part part, Element e) throws Exception {
+   private static void parseLine(Part part, XMLElement e) throws Exception {
 
       LineNode node = new LineNode();
 
@@ -110,7 +110,7 @@ class Part {
 
    }
 
-   private static void parseRect(Part part, Element e) throws Exception {
+   private static void parseRect(Part part, XMLElement e) throws Exception {
 
       RectNode node = new RectNode();
 
@@ -149,7 +149,7 @@ class Part {
 
    }
 
-   private static void parseCircle(Part part, Element e) throws Exception {
+   private static void parseCircle(Part part, XMLElement e) throws Exception {
 
       CircleNode node = new CircleNode();
 
@@ -182,7 +182,7 @@ class Part {
 
    }
 
-   private static void parseTerminal(Part part, Element e) throws Exception {
+   private static void parseTerminal(Part part, XMLElement e) throws Exception {
 
       Point node = new Point();
 
