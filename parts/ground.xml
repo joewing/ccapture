@@ -1,0 +1,18 @@
+
+<Part>
+
+   <Name>Ground</Name>
+
+   <Draw>
+      <Line x1="2" y1="0" x2="2" y2="1"/>
+      <Line x1="0" y1="1" x2="4" y2="1"/>
+      <Line x1="0" y1="1" x2="2" y2="4"/>
+      <Line x1="4" y1="1" x2="2" y2="4"/>
+   </Draw>
+
+   <Connections>
+      <Terminal x="2" y="0"/>
+   </Connections>
+
+</Part>
+

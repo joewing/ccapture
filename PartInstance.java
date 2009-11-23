@@ -1,0 +1,128 @@
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+import org.jdom.*;
+
+class PartInstance extends BaseInstance {
+
+   public PartInstance(Part p, int x, int y, int rotation) {
+      part = p;
+      this.rotation = rotation;
+      move(x, y);
+   }
+
+   public PartInstance(Part p, Element e) throws Exception {
+      part = p;
+
+      String xstr = e.getAttributeValue("x");
+      if(xstr == null) {
+         throw new Exception("x not set");
+      }
+      x = Integer.parseInt(xstr);
+
+      String ystr = e.getAttributeValue("y");
+      if(ystr == null) {
+         throw new Exception("y not set");
+      }
+      y = Integer.parseInt(ystr);
+
+      String rstr = e.getAttributeValue("rotation");
+      if(rstr == null) {
+         throw new Exception("rotation not set");
+      }
+      rotation = Integer.parseInt(rstr);
+
+   }
+
+   public void move(int x, int y) {
+      this.x = x;
+      this.y = y;
+   }
+
+   public int getX() {
+      return x;
+   }
+
+   public int getY() {
+      return y;
+   }
+
+   public int getWidth() {
+      return part.getWidth();
+   }
+
+   public int getHeight() {
+      return part.getHeight();
+   }
+
+   public void draw(Graphics g, int scale) {
+      part.draw(g, x * scale, y * scale, rotation, scale);
+   }
+
+   public void drawHandles(Graphics g, int scale) {
+      part.drawHandles(g, x * scale, y * scale, rotation, scale);
+   }
+
+   public boolean contains(int x, int y, int scale) {
+      x *= scale;
+      y *= scale;
+      final int width = part.getWidth() * scale;
+      final int height = part.getHeight() * scale;
+      final int x1 = this.x * scale;
+      final int y1 = this.y * scale;
+      final int x2 = x1 + width;
+      final int y2 = y1 + width;
+      return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+   }
+
+   public void updateMenu(Schematic schematic, JPopupMenu menu) {
+
+      final Schematic schem = schematic;
+
+      menu.add(new JSeparator());
+
+      JMenuItem rotateItem = new JMenuItem("Rotate");
+      menu.add(rotateItem);
+      rotateItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            rotation = (rotation + 1) % 4;
+            schem.repaint();
+         }
+      });
+
+      JMenuItem rlMirrorItem = new JMenuItem("Mirror right-left");
+      menu.add(rlMirrorItem);
+      rlMirrorItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            schem.repaint();
+         }
+      });
+
+      JMenuItem tbMirrorItem = new JMenuItem("Mirror top-bottom");
+      menu.add(tbMirrorItem);
+      tbMirrorItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            schem.repaint();
+         }
+      });
+
+   }
+
+   public void save(Element root) {
+      Element e = new Element("Part");
+      root.addContent(e);
+      e.setAttribute("type", part.getName());
+      e.setAttribute("rotation", Integer.toString(rotation));
+      e.setAttribute("x", Integer.toString(x));
+      e.setAttribute("y", Integer.toString(y));
+   }
+
+   private Part part;
+   private int rotation;
+   private int x;
+   private int y;
+
+}
+

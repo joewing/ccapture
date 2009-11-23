@@ -1,0 +1,17 @@
+
+<Part>
+
+   <Name>Source</Name>
+
+   <Draw>
+      <Line x1="2" y1="0" x2="0" y2="2"/>
+      <Line x1="2" y1="0" x2="4" y2="2"/>
+      <Line x1="2" y1="0" x2="2" y2="4"/>
+   </Draw>
+
+   <Connections>
+      <Terminal x="2" y="4"/>
+   </Connections>
+
+</Part>
+

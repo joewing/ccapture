@@ -1,0 +1,16 @@
+
+<Part>
+
+   <Name>Connector</Name>
+
+   <Draw>
+      <Circle x="2" y="2" radius="2"/>
+      <Line x1="3" y1="2" x2="5" y2="2"/>
+   </Draw>
+
+   <Connections>
+      <Terminal x="5" y="2"/>
+   </Connections>
+
+</Part>
+

@@ -1,0 +1,22 @@
+
+<Part>
+
+   <Name>PNP Transistor</Name>
+
+   <Draw>
+      <Line x1="0" y1="3" x2="2" y2="3"/>
+      <Line x1="2" y1="0" x2="2" y2="6"/>
+      <Line x1="2" y1="2" x2="7" y2="0"/>
+      <Line x1="2" y1="4" x2="7" y2="6"/>
+      <Line x1="2" y1="4" x2="4" y2="4"/>
+      <Line x1="2" y1="4" x2="4" y2="6"/>
+   </Draw>
+
+   <Connections>
+      <Terminal name="base"      x="0" y="3"/>
+      <Terminal name="collector" x="7" y="0"/>
+      <Terminal name="emitter"   x="7" y="6"/>
+   </Connections>
+
+</Part>
+
