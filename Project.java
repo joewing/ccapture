@@ -1,8 +1,10 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
+import javax.imageio.*;
 import javax.swing.*;
 
 class Project {
@@ -177,6 +179,53 @@ class Project {
       return true;
    }
 
+   public void exportPNG() {
+
+      // Determine which file to use.
+      File selectedFile = null;
+      try {
+         JFileChooser chooser = new JFileChooser(currentPath);
+         switch(chooser.showSaveDialog(frame)) {
+         case JFileChooser.APPROVE_OPTION:
+            selectedFile = chooser.getSelectedFile();
+            break;
+         default:
+            return;
+         }
+      } catch(Exception ex) {
+         System.out.println(ex.toString());
+      }
+
+      // Make sure the user knows if we are over-writing a file.
+      if(selectedFile.exists()) {
+
+         // File exists. Make sure we are willing to over-write it.
+         final int rc = JOptionPane.showConfirmDialog(frame,
+            "File exists. Overwrite?");
+         switch(rc) {
+         case JOptionPane.YES_OPTION:  // Go ahead with this file.
+            break;
+         case JOptionPane.NO_OPTION:   // Try a different file.
+            exportPNG();
+            return;
+         default:                      // Cancel
+            return;
+         }
+
+      }
+
+      // Create the image.
+      RenderedImage image = schematic.getImage();
+
+      // Save the image.
+      try {
+         ImageIO.write(image, "PNG", selectedFile);
+      } catch(Exception ex) {
+         System.out.println(ex.toString());
+      }
+
+   }
+
    private void createMenuBar() {
 
       JMenuBar bar = new JMenuBar();
@@ -207,6 +256,16 @@ class Project {
       saveAsItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             saveFile(true);
+         }
+      });
+
+      fileMenu.add(new JSeparator());
+
+      JMenuItem exportPNGItem = new JMenuItem("Export PNG");
+      fileMenu.add(exportPNGItem);
+      exportPNGItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            exportPNG();
          }
       });
 

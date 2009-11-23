@@ -1,6 +1,7 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
@@ -542,6 +543,27 @@ class Schematic extends JPanel {
       }
       setPreferredSize(new Dimension(width, height));
       revalidate();
+   }
+
+   public RenderedImage getImage() {
+
+      Dimension dim = getPreferredSize();
+      BufferedImage image = new BufferedImage(dim.width, dim.height,
+                                              BufferedImage.TYPE_INT_RGB);
+      Graphics g = image.getGraphics();
+
+      // Clear the background.
+      g.setColor(Color.WHITE);
+      g.fillRect(0, 0, dim.width, dim.height);
+
+      // Draw parts.
+      for(BaseInstance inst : parts) {
+         g.setColor(Color.BLACK);
+         inst.draw(g, scale);
+      }
+
+      return image;
+
    }
 
    public void open(InputStream stream) throws Exception {
