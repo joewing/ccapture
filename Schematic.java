@@ -112,12 +112,21 @@ class Schematic extends JPanel {
       }
 
       private void rightClick(int x, int y) {
-         if(mode == Project.MODE_INSERT) {
+         switch(mode) {
+         case Project.MODE_INSERT:
             rotate();
-         } else if(mode == Project.MODE_WIRE && wire_x1 != -1) {
-            endWire();
-         } else {
+            break;
+         case Project.MODE_WIRE:
+            if(wire_x1 != -1) {
+               endWire();
+            }
+            break;
+         case Project.MODE_SELECT:
+         case Project.MODE_GROUP:
             showMenu(x, y);
+            break;
+         default:
+            break;
          }
       }
 
@@ -224,13 +233,21 @@ class Schematic extends JPanel {
       public void mouseMoved(MouseEvent e) {
          final int x = e.getX();
          final int y = e.getY();
-         if(mode == Project.MODE_WIRE) {
+         switch(mode) {
+         case Project.MODE_WIRE:
             drawWire(x, y);
-         } else {
+            break;
+         case Project.MODE_SELECT:
+         case Project.MODE_GROUP:
+         {
             BaseInstance p = getPart(x, y);
             if(p != null) {
                setSelection(p);
             }
+            break;
+         }
+         default:
+            break;
          }
       }
 
@@ -246,6 +263,8 @@ class Schematic extends JPanel {
          rotation = 0;
       }
       mode = m;
+
+      // Set the cursor.
       switch(mode) {
       case Project.MODE_INSERT:
       {
@@ -259,6 +278,12 @@ class Schematic extends JPanel {
          setCursor(null);
          break;
       }
+
+      // Clear the selection unless we're in select mode.
+      if(mode != Project.MODE_SELECT) {
+         setSelection(null);
+      }
+
    }
 
    private void rotate() {

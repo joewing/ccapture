@@ -24,7 +24,56 @@ class Part {
       public int radius;
    }
 
+   /** Initialize the rotation table if it isn't already. */
+   private static void initRotationTable() {
+      if(rotationTable == null) {
+
+         // rx = x * rotationTable[t * 4 + 0] + y * rotationTable[t * 4 + 1]
+         // ry = x * rotationTable[t * 4 + 2] + y * rotationTable[t * 4 + 3]
+         rotationTable = new int[6 * 4];
+
+         // 0 degrees
+         rotationTable[0 * 4 + 0] = 1;    // cos(t)
+         rotationTable[0 * 4 + 1] = 0;    // sin(t)
+         rotationTable[0 * 4 + 2] = 0;    // -sin(t)
+         rotationTable[0 * 4 + 3] = 1;    // cos(t)
+
+         // 90 degrees
+         rotationTable[1 * 4 + 0] = 0;
+         rotationTable[1 * 4 + 1] = -1;
+         rotationTable[1 * 4 + 2] = 1;
+         rotationTable[1 * 4 + 3] = 0;
+
+         // 180 degrees
+         rotationTable[2 * 4 + 0] = -1;
+         rotationTable[2 * 4 + 1] = 0;
+         rotationTable[2 * 4 + 2] = 0;
+         rotationTable[2 * 4 + 3] = -1;
+
+         // 270 degrees
+         rotationTable[3 * 4 + 0] = 0;
+         rotationTable[3 * 4 + 1] = 1;
+         rotationTable[3 * 4 + 2] = -1;
+         rotationTable[3 * 4 + 3] = 0;
+
+         // Mirror left-right
+         rotationTable[4 * 4 + 0] = -1;
+         rotationTable[4 * 4 + 1] = 0;
+         rotationTable[4 * 4 + 2] = 0;
+         rotationTable[4 * 4 + 3] = 1;
+
+         // Mirror top-bottom
+         rotationTable[5 * 4 + 0] = 1;
+         rotationTable[5 * 4 + 1] = 0;
+         rotationTable[5 * 4 + 2] = 0;
+         rotationTable[5 * 4 + 3] = -1;
+
+      }
+   }
+
    public static Part load(InputStream stream) throws Exception {
+
+      initRotationTable();
 
       Part part = new Part();
 
@@ -214,30 +263,31 @@ class Part {
    }
 
    /** Rotate p theta radians around (0, 0). */
-   private void rotate(Point p, double theta) {
-      final double xc = p.x;
-      final double yc = p.y;
-      p.x = (int)(xc * Math.cos(theta) + yc * Math.sin(theta) + 0.5);
-      p.y = (int)(yc * Math.cos(theta) - xc * Math.sin(theta) + 0.5);
+   private void rotate(Point p, int r) {
+      final int xc = p.x * rotationTable[r * 4 + 0]
+                   + p.y * rotationTable[r * 4 + 1];
+      final int yc = p.x * rotationTable[r * 4 + 2]
+                   + p.y * rotationTable[r * 4 + 3];
+      p.x = xc;
+      p.y = yc;
    }
 
    public void draw(Graphics g, int x, int y, int rotation, int scale) {
 
       Point p = new Point();
-      final double theta = Math.toRadians(rotation * 90.0);
       final int xoffset = size * scale / 2;
       final int yoffset = size * scale / 2;
       for(LineNode node : lines) {
 
          p.x = node.x1 * scale - xoffset;
          p.y = node.y1 * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x1 = p.x + xoffset + x;
          final int y1 = p.y + yoffset + y;
 
          p.x = node.x2 * scale - xoffset;
          p.y = node.y2 * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x2 = p.x + xoffset + x;
          final int y2 = p.y + yoffset + y;
 
@@ -248,25 +298,25 @@ class Part {
 
          p.x = node.x * scale - xoffset;
          p.y = node.y * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x1 = p.x + xoffset + x;
          final int y1 = p.y + yoffset + y;
 
          p.x = (node.x + node.width - 1) * scale - xoffset;
          p.y = node.y * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x2 = p.x + xoffset + x;
          final int y2 = p.y + yoffset + y;
 
          p.x = node.x * scale - xoffset;
          p.y = (node.y + node.height - 1) * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x3 = p.x + xoffset + x;
          final int y3 = p.y + yoffset + y;
 
          p.x = (node.x + node.width - 1) * scale - xoffset;
          p.y = (node.y + node.height - 1) * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int x4 = p.x + xoffset + x;
          final int y4 = p.y + yoffset + y;
 
@@ -280,7 +330,7 @@ class Part {
 
          p.x = node.x * scale - xoffset;
          p.y = node.y * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int xc = p.x + xoffset + x;
          final int yc = p.y + yoffset + y;
 
@@ -302,7 +352,7 @@ class Part {
 
          p.x = node.x * scale - xoffset;
          p.y = node.y * scale - yoffset;
-         rotate(p, theta);
+         rotate(p, rotation);
          final int xc = p.x + xoffset + x;
          final int yc = p.y + yoffset + y;
 
@@ -346,6 +396,8 @@ class Part {
    private LinkedList<CircleNode> circles = new LinkedList<CircleNode>();
    private LinkedList<Point> terminals = new LinkedList<Point>();
    private int size;
+
+   private static int rotationTable[] = null;
 
 }
 
