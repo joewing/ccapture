@@ -417,6 +417,9 @@ class Schematic extends JPanel {
       if(!isBuffer) {
          project.addUndoAction(new DeletePartAction(this, p));
       }
+      if(p == selection) {
+         setSelection(null);
+      }
       repaint();
    }
 
