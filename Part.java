@@ -9,6 +9,10 @@ import org.w3c.dom.*;
 
 class Part {
 
+   public static int ROTATION_MASK     = 3;
+   public static int MIRROR_HORZ_MASK  = 4;
+   public static int MIRROR_VERT_MASK  = 8;
+
    private static final class LineNode {
       public int x1, y1;
       public int x2, y2;
@@ -262,18 +266,34 @@ class Part {
       return getName();
    }
 
-   /** Rotate p theta radians around (0, 0). */
+   /** Rotate p around (0, 0) according to rotation r. */
    private void rotate(Point p, int r) {
-      final int xc = p.x * rotationTable[r * 4 + 0]
-                   + p.y * rotationTable[r * 4 + 1];
-      final int yc = p.x * rotationTable[r * 4 + 2]
-                   + p.y * rotationTable[r * 4 + 3];
+      final int index = r & ROTATION_MASK;
+      int xc = p.x * rotationTable[index * 4 + 0]
+             + p.y * rotationTable[index * 4 + 1];
+      int yc = p.x * rotationTable[index * 4 + 2]
+             + p.y * rotationTable[index * 4 + 3];
       p.x = xc;
       p.y = yc;
+      if((r & MIRROR_HORZ_MASK) != 0) {
+         xc = p.x * rotationTable[4 * 4 + 0]
+            + p.y * rotationTable[4 * 4 + 1];
+         yc = p.x * rotationTable[4 * 4 + 2]
+            + p.y * rotationTable[4 * 4 + 3];
+         p.x = xc;
+         p.y = yc;
+      }
+      if((r & MIRROR_VERT_MASK) != 0) {
+         xc = p.x * rotationTable[5 * 4 + 0]
+            + p.y * rotationTable[5 * 4 + 1];
+         yc = p.x * rotationTable[5 * 4 + 2]
+            + p.y * rotationTable[5 * 4 + 3];
+         p.x = xc;
+         p.y = yc;
+      }
    }
 
    public void draw(Graphics g, int x, int y, int rotation, int scale) {
-
       Point p = new Point();
       final int xoffset = size * scale / 2;
       final int yoffset = size * scale / 2;

@@ -258,30 +258,36 @@ class Schematic extends JPanel {
    }
 
    public void setMode(int m) {
+
+      // End any wires currently enabled.
       endWire();
-      if(mode != m) {
-         rotation = 0;
-      }
+
+      // Set the new mode.
       mode = m;
 
       // Set the cursor.
-      switch(mode) {
-      case Project.MODE_INSERT:
-      {
+      if(mode == Project.MODE_INSERT) {
          Part part = project.getSelectedPart();
          if(part != null) {
             setCursor(part.getCursor(rotation, scale));
          }
-         break;
-      }
-      default:
+      } else {
          setCursor(null);
-         break;
+      }
+
+      // Reset the rotation unless we're in insert mode.
+      if(mode != Project.MODE_INSERT) {
+         rotation = 0;
       }
 
       // Clear the selection unless we're in select mode.
       if(mode != Project.MODE_SELECT) {
          setSelection(null);
+      }
+
+      // Clear the group list unless we're in group mode.
+      if(mode != Project.MODE_GROUP) {
+         group.clear();
       }
 
    }

@@ -39,6 +39,26 @@ class PartInstance extends BaseInstance {
       this.y = y;
    }
 
+   public void rotate() {
+      final boolean mirror_horz = (rotation & Part.MIRROR_HORZ_MASK) != 0;
+      final boolean mirror_vert = (rotation & Part.MIRROR_VERT_MASK) != 0;
+      rotation = (rotation + 1) & 3;
+      if(mirror_horz) {
+         rotation |= Part.MIRROR_VERT_MASK;
+      }
+      if(mirror_vert) {
+         rotation |= Part.MIRROR_HORZ_MASK;
+      }
+   }
+
+   public void mirrorHorizontal() {
+      rotation ^= Part.MIRROR_HORZ_MASK;
+   }
+
+   public void mirrorVertical() {
+      rotation ^= Part.MIRROR_VERT_MASK;
+   }
+
    public int getX() {
       return x;
    }
@@ -85,7 +105,7 @@ class PartInstance extends BaseInstance {
       menu.add(rotateItem);
       rotateItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            rotation = (rotation + 1) % 4;
+            rotate();
             schem.repaint();
          }
       });
@@ -94,6 +114,7 @@ class PartInstance extends BaseInstance {
       menu.add(rlMirrorItem);
       rlMirrorItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
+            mirrorHorizontal();
             schem.repaint();
          }
       });
@@ -102,6 +123,7 @@ class PartInstance extends BaseInstance {
       menu.add(tbMirrorItem);
       tbMirrorItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
+            mirrorVertical();
             schem.repaint();
          }
       });
