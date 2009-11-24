@@ -44,6 +44,10 @@ class Schematic extends JPanel {
 
    }
 
+   public int getScale() {
+      return scale;
+   }
+
    public void paint(Graphics g) {
 
       final int width = getWidth();
@@ -90,6 +94,7 @@ class Schematic extends JPanel {
             break;
          }
          case Project.MODE_WIRE:
+         case Project.MODE_WIRE_SELECT:
             addWirePoint(x, y);
             break;
          case Project.MODE_GROUP:
@@ -124,6 +129,9 @@ class Schematic extends JPanel {
          case Project.MODE_SELECT:
          case Project.MODE_GROUP:
             showMenu(x, y);
+            break;
+         case Project.MODE_WIRE_SELECT:
+            addWirePoint(x, y);
             break;
          default:
             break;
@@ -235,6 +243,7 @@ class Schematic extends JPanel {
          final int y = e.getY();
          switch(mode) {
          case Project.MODE_WIRE:
+         case Project.MODE_WIRE_SELECT:
             drawWire(x, y);
             break;
          case Project.MODE_SELECT:
@@ -314,6 +323,9 @@ class Schematic extends JPanel {
             BaseInstance part = new WireInstance(wire_x1, wire_y1,
                                                  end_point.x, end_point.y);
             insertPart(part, false);
+            if(mode == Project.MODE_WIRE_SELECT) {
+               setMode(Project.MODE_SELECT);
+            }
          }
          wire_x1 = wire_x2;
          wire_y1 = wire_y2;
@@ -361,12 +373,40 @@ class Schematic extends JPanel {
          // Turn on the new line.
          g.drawLine(x1, y1, x2, y2);
 
-         g.setXORMode(Color.BLACK);
+         g.setPaintMode();
 
          wire_x2 = p.x;
          wire_y2 = p.y;
 
       }
+   }
+
+   public void replaceWire(Point start, Point end) {
+
+      setMode(Project.MODE_WIRE_SELECT);
+
+      wire_x1 = start.x;
+      wire_y1 = start.y;
+      wire_x2 = end.x;
+      wire_y2 = end.y;
+
+      // Turn on the glass-pane line.
+      Component glassPane = project.getGlassPane();
+      glassPane.setVisible(true);
+      Point screenPoint = glassPane.getLocationOnScreen();
+      Point localPoint = getLocationOnScreen();
+      final int xoffset = localPoint.x - screenPoint.x;
+      final int yoffset = localPoint.y - screenPoint.y;
+      final int x1 = wire_x1 * scale + xoffset;
+      final int y1 = wire_y1 * scale + yoffset;
+      final int oldx2 = wire_x2 * scale + xoffset;
+      final int oldy2 = wire_y2 * scale + yoffset;
+      Graphics g = glassPane.getGraphics();
+      g.setColor(Color.BLACK);
+      g.setXORMode(Color.WHITE);
+      g.drawLine(x1, y1, oldx2, oldy2);
+      g.setPaintMode();
+
    }
 
    private void snapToTerminal(Point p) {
@@ -578,7 +618,7 @@ class Schematic extends JPanel {
          }
       });
 
-      selection.updateMenu(this, menu);
+      selection.updateMenu(this, menu, x, y);
 
       menu.add(new JSeparator());
 

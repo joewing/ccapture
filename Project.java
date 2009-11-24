@@ -9,10 +9,11 @@ import javax.swing.*;
 
 class Project {
 
-   public static final int MODE_SELECT = 0;
-   public static final int MODE_INSERT = 1;
-   public static final int MODE_WIRE   = 2;
-   public static final int MODE_GROUP  = 3;
+   public static final int MODE_SELECT       = 0;
+   public static final int MODE_INSERT       = 1;
+   public static final int MODE_WIRE         = 2;
+   public static final int MODE_GROUP        = 3;
+   public static final int MODE_WIRE_SELECT  = 4;
 
    public Project() {
 

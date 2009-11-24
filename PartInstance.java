@@ -99,9 +99,10 @@ class PartInstance extends BaseInstance {
       return part.snapToTerminal(x, y, p, rotation);
    }
 
-   public void updateMenu(Schematic schematic, JPopupMenu menu) {
-
-      final Schematic schem = schematic;
+   public void updateMenu(final Schematic schematic,
+                          final JPopupMenu menu,
+                          final int x,
+                          final int y) {
 
       menu.add(new JSeparator());
 
@@ -110,7 +111,7 @@ class PartInstance extends BaseInstance {
       rotateItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             rotate();
-            schem.repaint();
+            schematic.repaint();
          }
       });
 
@@ -119,7 +120,7 @@ class PartInstance extends BaseInstance {
       rlMirrorItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             mirrorHorizontal();
-            schem.repaint();
+            schematic.repaint();
          }
       });
 
@@ -128,7 +129,7 @@ class PartInstance extends BaseInstance {
       tbMirrorItem.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             mirrorVertical();
-            schem.repaint();
+            schematic.repaint();
          }
       });
 

@@ -1,6 +1,7 @@
 
-import java.util.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 import javax.swing.*;
 
 class WireInstance extends BaseInstance {
@@ -152,7 +153,41 @@ class WireInstance extends BaseInstance {
 
    }
 
-   public void updateMenu(Schematic schematic, JPopupMenu menu) {
+   public void updateMenu(final Schematic schematic,
+                          final JPopupMenu menu,
+                          final int x,
+                          final int y) {
+
+      final WireInstance inst = this;
+
+      menu.add(new JSeparator());
+
+      JMenuItem movePoint = new JMenuItem("Move Point");
+      menu.add(movePoint);
+      movePoint.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+
+            // First remove this wire.
+            schematic.deletePart(inst, false);
+
+            // Get the point where the menu was shown.
+            final int scale = schematic.getScale();
+            Point p = new Point(x / scale, y / scale);
+
+            // Determine the distances.
+            final int dist1 = (int)point1.distance(p);
+            final int dist2 = (int)point2.distance(p);
+
+            // Start adding back the wire.
+            if(dist1 < dist2) {
+               schematic.replaceWire(point2, point1);
+            } else {
+               schematic.replaceWire(point1, point2);
+            }
+
+         }
+      });
+
    }
 
    public void save(XMLElement root) {

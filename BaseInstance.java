@@ -23,7 +23,10 @@ abstract class BaseInstance {
 
    public abstract int snapToTerminal(Point p);
 
-   public abstract void updateMenu(Schematic schematic, JPopupMenu menu);
+   public abstract void updateMenu(Schematic schematic,
+                                   JPopupMenu menu,
+                                   int x,
+                                   int y);
 
    public abstract void save(XMLElement root);
 
