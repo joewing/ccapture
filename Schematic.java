@@ -301,15 +301,18 @@ class Schematic extends JPanel {
       x /= scale;
       y /= scale;
       if(wire_x1 == -1) {
-         wire_x1 = x;
-         wire_y1 = y;
-      } else if(wire_x2 == -1) {
+         Point start_point = new Point(x, y);
+         snapToTerminal(start_point);
+         wire_x1 = start_point.x;
+         wire_y1 = start_point.y;
+      } else {
          wire_x2 = x;
          wire_y2 = y;
-      } else {
          if(wire_x1 != wire_x2 || wire_y1 != wire_y2) {
+            Point end_point = new Point(wire_x2, wire_y2);
+            snapToTerminal(end_point);
             BaseInstance part = new WireInstance(wire_x1, wire_y1,
-                                                 wire_x2, wire_y2);
+                                                 end_point.x, end_point.y);
             insertPart(part, false);
          }
          wire_x1 = wire_x2;
@@ -339,8 +342,12 @@ class Schematic extends JPanel {
          final int yoffset = localPoint.y - screenPoint.y;
          final int x1 = wire_x1 * scale + xoffset;
          final int y1 = wire_y1 * scale + yoffset;
-         final int x2 = x * scale + xoffset;
-         final int y2 = y * scale + yoffset;
+
+         Point p = new Point(x, y);
+         snapToTerminal(p);
+         final int x2 = p.x * scale + xoffset;
+         final int y2 = p.y * scale + yoffset;
+
          Graphics g = glassPane.getGraphics();
          g.setXORMode(Color.WHITE);
 
@@ -356,9 +363,36 @@ class Schematic extends JPanel {
 
          g.setXORMode(Color.BLACK);
 
-         wire_x2 = x;
-         wire_y2 = y;
+         wire_x2 = p.x;
+         wire_y2 = p.y;
+
       }
+   }
+
+   private void snapToTerminal(Point p) {
+
+      Point best_point = new Point();
+      Point temp_point = new Point();
+      int best_distance = Integer.MAX_VALUE;
+      BaseInstance best_part = null;
+
+      for(BaseInstance i : parts) {
+         temp_point.x = p.x;
+         temp_point.y = p.y;
+         int distance = i.snapToTerminal(temp_point);
+         if(distance < best_distance) {
+            best_distance = distance;
+            best_part = i;
+            best_point.x = temp_point.x;
+            best_point.y = temp_point.y;
+         }
+      }
+
+      if(best_part != null && best_distance < 2) {
+         p.x = best_point.x;
+         p.y = best_point.y;
+      }
+
    }
 
    private BaseInstance getPart(int x, int y) {

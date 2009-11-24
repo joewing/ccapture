@@ -6,10 +6,10 @@ import javax.swing.*;
 class WireInstance extends BaseInstance {
 
    public WireInstance(int x1, int y1, int x2, int y2) {
-      this.x1 = x1;
-      this.y1 = y1;
-      this.x2 = x2;
-      this.y2 = y2;
+      point1.x = x1;
+      point1.y = y1;
+      point2.x = x2;
+      point2.y = y2;
    }
 
    public WireInstance(XMLElement e) throws Exception {
@@ -18,42 +18,42 @@ class WireInstance extends BaseInstance {
       if(x1str == null) {
          throw new Exception("x1 not set");
       }
-      x1 = Integer.parseInt(x1str);
+      point1.x = Integer.parseInt(x1str);
 
       String y1str = e.getAttributeValue("y1");
       if(y1str == null) {
          throw new Exception("y1 not set");
       }
-      y1 = Integer.parseInt(y1str);
+      point1.y = Integer.parseInt(y1str);
 
       String x2str = e.getAttributeValue("x2");
       if(x2str == null) {
          throw new Exception("x2 not set");
       }
-      x2 = Integer.parseInt(x2str);
+      point2.x = Integer.parseInt(x2str);
 
       String y2str = e.getAttributeValue("y2");
       if(y2str == null) {
          throw new Exception("y2 not set");
       }
-      y2 = Integer.parseInt(y2str);
+      point2.y = Integer.parseInt(y2str);
 
    }
 
    public int getX() {
-      return x1 < x2 ? x1 : x2;
+      return point1.x < point2.x ? point1.x : point2.x;
    }
 
    public int getY() {
-      return y1 < y2 ? y1 : y2;
+      return point1.y < point2.y ? point1.y : point2.y;
    }
 
    public int getWidth() {
-      return Math.abs(x1 - x2);
+      return Math.abs(point1.x - point2.x);
    }
 
    public int getHeight() {
-      return Math.abs(y1 - y2);
+      return Math.abs(point1.y - point2.y);
    }
 
    public void move(int x, int y) {
@@ -69,37 +69,40 @@ class WireInstance extends BaseInstance {
       final int diffy = y - basey;
 
       // Update our coordinates.
-      x1 += diffx;
-      y1 += diffy;
-      x2 += diffx;
-      y2 += diffy;
+      point1.x += diffx;
+      point1.y += diffy;
+      point2.x += diffx;
+      point2.y += diffy;
 
    }
 
    public void draw(Graphics g, int scale) {
-      g.drawLine(x1 * scale, y1 * scale, x2 * scale, y2 * scale);
+      g.drawLine(point1.x * scale, point1.y * scale,
+                 point2.x * scale, point2.y * scale);
    }
 
    public void drawHandles(Graphics g, int scale) {
 
-      g.fillOval(x1 * scale - scale / 2, y1 * scale - scale / 2, scale, scale);
-      g.fillOval(x2 * scale - scale / 2, y2 * scale - scale / 2, scale, scale);
+      g.fillOval(point1.x * scale - scale / 2,
+                 point1.y * scale - scale / 2, scale, scale);
+      g.fillOval(point2.x * scale - scale / 2,
+                 point2.y * scale - scale / 2, scale, scale);
 
    }
 
    public boolean contains(int x, int y, int scale) {
 
       // Check the rectangle containing the line.
-      if((x < x1 && x < x2) || (x > x1 && x > x2)) {
+      if((x < point1.x && x < point2.x) || (x > point1.x && x > point2.x)) {
          return false;
       }
-      if((y < y1 && y < y2) || (y > y1 && y > y2)) {
+      if((y < point1.y && y < point2.y) || (y > point1.y && y > point2.y)) {
          return false;
       }
 
       // Set (x1, y1) to be (0, 0).
-      final int nx2 = x2 - x1;
-      final int ny2 = y2 - y1;
+      final int nx2 = point2.x - point1.x;
+      final int ny2 = point2.y - point1.y;
 
       // Now use 'y = mx + b' if 'nx2 != 0', otherwise use
       // 'x = my + b'. We know either nx2 != 0 or ny2 != 0 since
@@ -108,7 +111,7 @@ class WireInstance extends BaseInstance {
 
          // Use 'y = mx + b' -> 'm = y / x'.
          final int m = ny2 / nx2;
-         final int b = y1 - m * x1;
+         final int b = point1.y - m * point1.x;
          final int ty = m * x + b;
          return Math.abs(ty - y) <= 2 * scale;
 
@@ -116,7 +119,7 @@ class WireInstance extends BaseInstance {
 
          // Use 'x = my + b' -> 'm = x / y'.
          final int m = nx2 / ny2;
-         final int b = x1 - m * y1;
+         final int b = point1.x - m * point1.y;
          final int tx = m * y + b;
          return Math.abs(tx - x) <= 2 * scale;
 
@@ -130,19 +133,38 @@ class WireInstance extends BaseInstance {
 
    }
 
+   public int snapToTerminal(Point p) {
+
+      // Compute distances.
+      final int dist1 = (int)p.distance(point1);
+      final int dist2 = (int)p.distance(point2);
+
+      // Return the smaller.
+      if(dist1 < dist2) {
+         p.x = point1.x;
+         p.y = point1.y;
+         return dist1;
+      } else {
+         p.x = point2.x;
+         p.y = point2.y;
+         return dist2;
+      }
+
+   }
+
    public void updateMenu(Schematic schematic, JPopupMenu menu) {
    }
 
    public void save(XMLElement root) {
       XMLElement e = root.createChild("Wire");
-      e.setAttribute("x1", Integer.toString(x1));
-      e.setAttribute("y1", Integer.toString(y1));
-      e.setAttribute("x2", Integer.toString(x2));
-      e.setAttribute("y2", Integer.toString(y2));
+      e.setAttribute("x1", Integer.toString(point1.x));
+      e.setAttribute("y1", Integer.toString(point1.y));
+      e.setAttribute("x2", Integer.toString(point2.x));
+      e.setAttribute("y2", Integer.toString(point2.y));
    }
 
-   private int x1, y1;
-   private int x2, y2;
+   private Point point1 = new Point();
+   private Point point2 = new Point();
 
 }
 

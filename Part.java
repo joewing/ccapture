@@ -293,6 +293,32 @@ class Part {
       }
    }
 
+   public int snapToTerminal(int x, int y, Point p, int rotation) {
+
+      Point temp = new Point();
+      int best_distance = Integer.MAX_VALUE;
+      int bestx = p.x;
+      int besty = p.y;
+      final int offset = size / 2;
+      for(Point t : terminals) {
+         temp.x = x + t.x - offset;
+         temp.y = y + t.y - offset;
+         rotate(temp, rotation);
+         temp.x += offset;
+         temp.y += offset;
+         final int dist = (int)temp.distance(p);
+         if(dist < best_distance) {
+            best_distance = dist;
+            bestx = temp.x;
+            besty = temp.y;
+         }
+      }
+      p.x = bestx;
+      p.y = besty;
+      return best_distance;
+
+   }
+
    public void draw(Graphics g, int x, int y, int rotation, int scale) {
       Point p = new Point();
       final int xoffset = size * scale / 2;

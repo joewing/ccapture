@@ -95,6 +95,10 @@ class PartInstance extends BaseInstance {
       return x >= x1 && x <= x2 && y >= y1 && y <= y2;
    }
 
+   public int snapToTerminal(Point p) {
+      return part.snapToTerminal(x, y, p, rotation);
+   }
+
    public void updateMenu(Schematic schematic, JPopupMenu menu) {
 
       final Schematic schem = schematic;

@@ -21,6 +21,8 @@ abstract class BaseInstance {
 
    public abstract boolean contains(int x, int y, int scale);
 
+   public abstract int snapToTerminal(Point p);
+
    public abstract void updateMenu(Schematic schematic, JPopupMenu menu);
 
    public abstract void save(XMLElement root);
