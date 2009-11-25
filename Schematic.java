@@ -545,6 +545,14 @@ class Schematic extends JPanel {
             i.move(i.getX() + delta, i.getY());
          }
 
+         // Move active wire points to the right.
+         if(wire_x1 != -1) {
+            wire_x1 += delta;
+         }
+         if(wire_x2 != -1) {
+            wire_x2 += delta;
+         }
+
          // TODO Fix up the undo/redo buffer.
 
       }
@@ -568,6 +576,10 @@ class Schematic extends JPanel {
          for(BaseInstance i : parts) {
             i.move(i.getX(), i.getY() + delta);
          }
+
+         // Move active wire points down.
+         wire_y1 += delta;
+         wire_y2 += delta;
 
          // TODO Fix up the undo/redo buffer.
 
