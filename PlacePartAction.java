@@ -15,6 +15,7 @@ class PlacePartAction implements UserAction {
    }
 
    public void shift(int deltax, int deltay) {
+      part.move(part.getX() + deltax, part.getY() + deltay);
    }
 
    private Schematic schematic;

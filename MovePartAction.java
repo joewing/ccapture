@@ -20,6 +20,10 @@ class MovePartAction implements UserAction {
    }
 
    public void shift(int deltax, int deltay) {
+      oldx += deltax;
+      oldy += deltay;
+      newx += deltax;
+      newy += deltay;
    }
 
    private Schematic schematic;

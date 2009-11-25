@@ -14,7 +14,8 @@ class DeletePartAction implements UserAction {
       schematic.deletePart(part, true);
    }
 
-   public void shift(int x, int y) {
+   public void shift(int deltax, int deltay) {
+      part.move(part.getX() + deltax, part.getY() + deltay);
    }
 
    private Schematic schematic;

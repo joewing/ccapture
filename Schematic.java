@@ -538,7 +538,8 @@ class Schematic extends JPanel {
          }
          toggleWire();
 
-         // TODO Fix up the undo/redo buffer.
+         // Fix up the undo/redo buffer.
+         project.shiftBuffers(delta, 0);
 
       }
 
@@ -567,7 +568,8 @@ class Schematic extends JPanel {
          wire_y2 += delta;
          toggleWire();
 
-         // TODO Fix up the undo/redo buffer.
+         // Fix up the undo/redo buffer.
+         project.shiftBuffers(0, delta);
 
       }
 
