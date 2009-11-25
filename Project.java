@@ -71,10 +71,6 @@ class Project {
       return mode;
    }
 
-   public Component getGlassPane() {
-      return frame.getGlassPane();
-   }
-
    private boolean askToSave() {
 
       if(!changed) {

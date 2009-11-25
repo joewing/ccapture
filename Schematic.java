@@ -53,6 +53,9 @@ class Schematic extends JPanel {
       final int width = getWidth();
       final int height = getHeight();
 
+      // Turn off the active wire if there is one.
+      toggleWire();
+
       // Clear the background.
       g.setColor(Color.WHITE);
       g.fillRect(0, 0, width, height);
@@ -73,6 +76,9 @@ class Schematic extends JPanel {
             g.setPaintMode();
          }
       }
+
+      // Turn back on the active wire if there is one.
+      toggleWire();
 
    }
 
@@ -338,45 +344,39 @@ class Schematic extends JPanel {
    private void endWire() {
       wire_x1 = -1;
       wire_x2 = -1;
-      project.getGlassPane().setVisible(false);
       repaint();
+   }
+
+   private void toggleWire() {
+      if(wire_x1 != -1 && wire_x2 != -1) {
+         final int x1 = wire_x1 * scale;
+         final int y1 = wire_y1 * scale;
+         final int x2 = wire_x2 * scale;
+         final int y2 = wire_y2 * scale;
+         Graphics g = getGraphics();
+         g.setColor(Color.BLACK);
+         g.setXORMode(Color.WHITE);
+         g.drawLine(x1, y1, x2, y2);
+         g.setPaintMode();
+      }
    }
 
    private void drawWire(int x, int y) {
       x /= scale;
       y /= scale;
       if(wire_x1 != -1) {
-         Component glassPane = project.getGlassPane();
-         glassPane.setVisible(true);
-         Point screenPoint = glassPane.getLocationOnScreen();
-         Point localPoint = getLocationOnScreen();
-         final int xoffset = localPoint.x - screenPoint.x;
-         final int yoffset = localPoint.y - screenPoint.y;
-         final int x1 = wire_x1 * scale + xoffset;
-         final int y1 = wire_y1 * scale + yoffset;
-
-         Point p = new Point(x, y);
-         snapToTerminal(p);
-         final int x2 = p.x * scale + xoffset;
-         final int y2 = p.y * scale + yoffset;
-
-         Graphics g = glassPane.getGraphics();
-         g.setXORMode(Color.WHITE);
 
          // Turn off the old line.
-         if(wire_x2 != -1) {
-            final int oldx2 = wire_x2 * scale + xoffset;
-            final int oldy2 = wire_y2 * scale + yoffset;
-            g.drawLine(x1, y1, oldx2, oldy2);
-         }
+         toggleWire();
 
-         // Turn on the new line.
-         g.drawLine(x1, y1, x2, y2);
-
-         g.setPaintMode();
-
+         // Update the point.
+         Point p = new Point(x, y);
+         snapToTerminal(p);
          wire_x2 = p.x;
          wire_y2 = p.y;
+
+         // Turn on the new line.
+         toggleWire();
 
       }
    }
@@ -390,22 +390,8 @@ class Schematic extends JPanel {
       wire_x2 = end.x;
       wire_y2 = end.y;
 
-      // Turn on the glass-pane line.
-      Component glassPane = project.getGlassPane();
-      glassPane.setVisible(true);
-      Point screenPoint = glassPane.getLocationOnScreen();
-      Point localPoint = getLocationOnScreen();
-      final int xoffset = localPoint.x - screenPoint.x;
-      final int yoffset = localPoint.y - screenPoint.y;
-      final int x1 = wire_x1 * scale + xoffset;
-      final int y1 = wire_y1 * scale + yoffset;
-      final int oldx2 = wire_x2 * scale + xoffset;
-      final int oldy2 = wire_y2 * scale + yoffset;
-      Graphics g = glassPane.getGraphics();
-      g.setColor(Color.BLACK);
-      g.setXORMode(Color.WHITE);
-      g.drawLine(x1, y1, oldx2, oldy2);
-      g.setPaintMode();
+      // Draw the wire.
+      toggleWire();
 
    }
 
@@ -546,12 +532,11 @@ class Schematic extends JPanel {
          }
 
          // Move active wire points to the right.
-         if(wire_x1 != -1) {
-            wire_x1 += delta;
-         }
+         toggleWire();
          if(wire_x2 != -1) {
             wire_x2 += delta;
          }
+         toggleWire();
 
          // TODO Fix up the undo/redo buffer.
 
@@ -578,8 +563,9 @@ class Schematic extends JPanel {
          }
 
          // Move active wire points down.
-         wire_y1 += delta;
+         toggleWire();
          wire_y2 += delta;
+         toggleWire();
 
          // TODO Fix up the undo/redo buffer.
 
