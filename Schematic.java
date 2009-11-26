@@ -14,6 +14,8 @@ import org.w3c.dom.*;
 
 class Schematic extends JPanel {
 
+   private static final int MAX_SNAP_DISTANCE = 3;
+
    private Project project;
    private int width;
    private int height;
@@ -414,7 +416,7 @@ class Schematic extends JPanel {
          }
       }
 
-      if(best_part != null && best_distance < 2) {
+      if(best_part != null && best_distance <= MAX_SNAP_DISTANCE) {
          p.x = best_point.x;
          p.y = best_point.y;
       }

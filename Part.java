@@ -301,11 +301,11 @@ class Part {
       int besty = p.y;
       final int offset = size / 2;
       for(Point t : terminals) {
-         temp.x = x + t.x - offset;
-         temp.y = y + t.y - offset;
+         temp.x = t.x - offset;
+         temp.y = t.y - offset;
          rotate(temp, rotation);
-         temp.x += offset;
-         temp.y += offset;
+         temp.x += x + offset;
+         temp.y += y + offset;
          final int dist = (int)temp.distance(p);
          if(dist < best_distance) {
             best_distance = dist;
