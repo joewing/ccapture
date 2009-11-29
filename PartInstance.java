@@ -11,6 +11,13 @@ class PartInstance extends BaseInstance {
       move(x, y);
    }
 
+   public PartInstance(PartInstance other) {
+      part = other.part;
+      rotation = other.rotation;
+      x = other.x;
+      y = other.y;
+   }
+
    public PartInstance(Part p, XMLElement e) throws Exception {
       part = p;
 
@@ -32,6 +39,10 @@ class PartInstance extends BaseInstance {
       }
       rotation = Integer.parseInt(rstr);
 
+   }
+
+   public BaseInstance clone() {
+      return new PartInstance(this);
    }
 
    public void move(int x, int y) {
@@ -75,8 +86,10 @@ class PartInstance extends BaseInstance {
       return part.getHeight();
    }
 
-   public void draw(Graphics g, int scale) {
-      part.draw(g, x * scale, y * scale, rotation, scale);
+   public void draw(Graphics g, int scale, int xoffset, int yoffset) {
+      final int x = this.x * scale + xoffset;
+      final int y = this.y * scale + yoffset;
+      part.draw(g, x, y, rotation, scale);
    }
 
    public void drawHandles(Graphics g, int scale) {

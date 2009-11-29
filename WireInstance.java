@@ -13,6 +13,11 @@ class WireInstance extends BaseInstance {
       point2.y = y2;
    }
 
+   public WireInstance(WireInstance other) {
+      point1 = new Point(other.point1);
+      point2 = new Point(other.point2);
+   }
+
    public WireInstance(XMLElement e) throws Exception {
 
       String x1str = e.getAttributeValue("x1");
@@ -39,6 +44,10 @@ class WireInstance extends BaseInstance {
       }
       point2.y = Integer.parseInt(y2str);
 
+   }
+
+   public BaseInstance clone() {
+      return new WireInstance(this);
    }
 
    public int getX() {
@@ -77,9 +86,10 @@ class WireInstance extends BaseInstance {
 
    }
 
-   public void draw(Graphics g, int scale) {
-      g.drawLine(point1.x * scale, point1.y * scale,
-                 point2.x * scale, point2.y * scale);
+   public void draw(Graphics g, int scale, int xoffset, int yoffset) {
+      
+      g.drawLine(point1.x * scale + xoffset, point1.y * scale + yoffset,
+                 point2.x * scale + xoffset, point2.y * scale + yoffset);
    }
 
    public void drawHandles(Graphics g, int scale) {

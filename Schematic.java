@@ -22,9 +22,9 @@ class Schematic extends JPanel {
    private int scale = 4;
    private int rotation = 0;
    private int mode;
-   private LinkedList<BaseInstance> parts    = new LinkedList<BaseInstance>();
-   private HashSet<BaseInstance> group       = new HashSet<BaseInstance>();
-   private HashSet<BaseInstance> selectGroup = new HashSet<BaseInstance>();
+   private LinkedList<BaseInstance> parts     = new LinkedList<BaseInstance>();
+   private HashSet<BaseInstance> group        = new HashSet<BaseInstance>();
+   private LinkedList<BaseInstance> copyParts = new LinkedList<BaseInstance>();
    BaseInstance selection = null;
 
    private int wire_x1, wire_y1;
@@ -77,7 +77,7 @@ class Schematic extends JPanel {
          } else {
             g.setColor(Color.BLACK);
          }
-         inst.draw(g, scale);
+         inst.draw(g, scale, 0, 0);
          if(inst == selection) {
             g.setXORMode(Color.WHITE);
             selection.drawHandles(g, scale);
@@ -220,7 +220,10 @@ class Schematic extends JPanel {
                }
             }
 
-            setMode(Project.MODE_GROUP);
+            if(!group.isEmpty()) {
+               setMode(Project.MODE_GROUP);
+            }
+
          }
 
       }
@@ -321,6 +324,10 @@ class Schematic extends JPanel {
             }
             break;
          }
+         case Project.MODE_PASTE:
+            for(BaseInstance i : copyParts) {
+            }
+            break;
          default:
             break;
          }
@@ -528,7 +535,7 @@ class Schematic extends JPanel {
          } else {
             g.setColor(Color.BLACK);
          }
-         selection.draw(g, scale);
+         selection.draw(g, scale, 0, 0);
 
       }
 
@@ -540,7 +547,7 @@ class Schematic extends JPanel {
 
          Graphics g = getGraphics();
          g.setColor(Color.RED);
-         selection.draw(g, scale);
+         selection.draw(g, scale, 0, 0);
 
          g.setXORMode(Color.WHITE);
          selection.drawHandles(g, scale);
@@ -725,6 +732,19 @@ class Schematic extends JPanel {
       revalidate();
    }
 
+   public void copy() {
+      copyParts.clear();
+      for(BaseInstance i : group) {
+         copyParts.add(i.clone());
+      }
+   }
+
+   public void paste() {
+      if(copyParts.isEmpty()) {
+         setMode(Project.MODE_SELECT);
+      }
+   }
+
    public RenderedImage getImage() {
 
       Dimension dim = getPreferredSize();
@@ -739,7 +759,7 @@ class Schematic extends JPanel {
       // Draw parts.
       for(BaseInstance inst : parts) {
          g.setColor(Color.BLACK);
-         inst.draw(g, scale);
+         inst.draw(g, scale, 0, 0);
       }
 
       return image;

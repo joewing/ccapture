@@ -15,6 +15,7 @@ class Project {
    public static final int MODE_GROUP        = 3;
    public static final int MODE_WIRE_SELECT  = 4;
    public static final int MODE_BOX          = 5;
+   public static final int MODE_PASTE        = 6;
 
    public Project() {
 
@@ -299,6 +300,24 @@ class Project {
 
       editMenu.add(new JSeparator());
 
+      JMenuItem copyItem = new JMenuItem("Copy");
+      editMenu.add(copyItem);
+      copyItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            copy();
+         }
+      });
+
+      JMenuItem pasteItem = new JMenuItem("Paste");
+      editMenu.add(pasteItem);
+      pasteItem.addActionListener(new ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+            paste();
+         }
+      });
+
+      editMenu.add(new JSeparator());
+
       JMenuItem sizeItem = new JMenuItem("Resize");
       editMenu.add(sizeItem);
       sizeItem.addActionListener(new ActionListener() {
@@ -358,6 +377,15 @@ class Project {
          action.redo();
          undoBuffer.add(action);
       }
+   }
+
+   public void copy() {
+      schematic.copy();
+   }
+
+   public void paste() {
+      setMode(MODE_PASTE);
+      schematic.paste();
    }
 
    public void clear() {

@@ -5,6 +5,8 @@ import javax.swing.*;
 
 abstract class BaseInstance {
 
+   public abstract BaseInstance clone();
+
    public abstract int getX();
 
    public abstract int getY();
@@ -15,7 +17,7 @@ abstract class BaseInstance {
 
    public abstract void move(int x, int y);
 
-   public abstract void draw(Graphics g, int scale);
+   public abstract void draw(Graphics g, int scale, int offsetx, int offsety);
 
    public abstract void drawHandles(Graphics g, int scale);
 
