@@ -14,6 +14,7 @@ class Project {
    public static final int MODE_WIRE         = 2;
    public static final int MODE_GROUP        = 3;
    public static final int MODE_WIRE_SELECT  = 4;
+   public static final int MODE_BOX          = 5;
 
    public Project() {
 

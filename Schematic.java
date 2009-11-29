@@ -14,7 +14,7 @@ import org.w3c.dom.*;
 
 class Schematic extends JPanel {
 
-   private static final int MAX_SNAP_DISTANCE = 3;
+   private static final int MAX_SNAP_DISTANCE = 2;
 
    private Project project;
    private int width;
@@ -22,13 +22,17 @@ class Schematic extends JPanel {
    private int scale = 4;
    private int rotation = 0;
    private int mode;
-   private LinkedList<BaseInstance> parts = new LinkedList<BaseInstance>();
-   private HashSet<BaseInstance> group = new HashSet<BaseInstance>();
+   private LinkedList<BaseInstance> parts    = new LinkedList<BaseInstance>();
+   private HashSet<BaseInstance> group       = new HashSet<BaseInstance>();
+   private HashSet<BaseInstance> selectGroup = new HashSet<BaseInstance>();
    BaseInstance selection = null;
 
    private int wire_x1, wire_y1;
    private int wire_x2, wire_y2;
    private int oldx, oldy;
+
+   private int select_x1, select_y1;
+   private int select_x2, select_y2;
 
    public Schematic(Project p) {
 
@@ -39,6 +43,8 @@ class Schematic extends JPanel {
       wire_x1 = -1;
       wire_x2 = -1;
       oldx = -1;
+      select_x1 = -1;
+      select_x2 = -1;
 
       SchematicMouseListener l = new SchematicMouseListener();
       addMouseListener(l);
@@ -170,18 +176,53 @@ class Schematic extends JPanel {
       }
 
       public void mousePressed(MouseEvent e) {
+
+         select_x1 = e.getX();
+         select_y1 = e.getY();
+         select_x2 = select_x1;
+         select_y2 = select_y1;
+
          if(mode == Project.MODE_SELECT) {
             setSelection(getPart(e.getX(), e.getY()));
          }
+
       }
 
       public void mouseReleased(MouseEvent e) {
+
          if(oldx != -1) {
             if(selection != null) {
                movePart(selection, selection.getX(), selection.getY(), false);
             }
             oldx = -1;
          }
+
+         if(mode == Project.MODE_BOX) {
+
+            toggleSelection();
+
+            // TODO: Make this faster
+            int x1 = select_x1 < select_x2 ? select_x1 : select_x2;
+            int x2 = select_x1 < select_x2 ? select_x2 : select_x1;
+            int y1 = select_y1 < select_y2 ? select_y1 : select_y2;
+            int y2 = select_y1 < select_y2 ? select_y2 : select_y1;
+            x1 /= scale;
+            x2 /= scale;
+            y1 /= scale;
+            y2 /= scale;
+            for(int x = x1; x < x2; x++) {
+               for(int y = y1; y < y2; y++) {
+                  for(BaseInstance i : parts) {
+                     if(i.contains(x, y, scale)) {
+                        group.add(i);
+                     }
+                  }
+               }
+            }
+
+            setMode(Project.MODE_GROUP);
+         }
+
       }
 
       public void mouseDragged(MouseEvent e) {
@@ -196,6 +237,14 @@ class Schematic extends JPanel {
             }
             selection.move(x, y);
             repaint();
+
+         } else if(mode == Project.MODE_SELECT && selection == null) {
+
+            // Switch to group mode start a group.
+            project.setMode(Project.MODE_BOX);
+            select_x2 = e.getX();
+            select_y2 = e.getY();
+            toggleSelection();
 
          } else if(mode == Project.MODE_GROUP && !group.isEmpty()) {
 
@@ -241,6 +290,15 @@ class Schematic extends JPanel {
             }
 
             repaint();
+
+         } else if(mode == Project.MODE_BOX) {
+
+            // Add everything in the box to the new selection.
+
+            toggleSelection();
+            select_x2 = e.getX();
+            select_y2 = e.getY();
+            toggleSelection();
 
          }
 
@@ -361,6 +419,18 @@ class Schematic extends JPanel {
          g.drawLine(x1, y1, x2, y2);
          g.setPaintMode();
       }
+   }
+
+   private void toggleSelection() {
+      Graphics g = getGraphics();
+      g.setColor(Color.BLACK);
+      g.setXORMode(Color.WHITE);
+      final int x = select_x1 > select_x2 ? select_x2 : select_x1;
+      final int y = select_y1 > select_y2 ? select_y2 : select_y1;
+      final int width = Math.abs(select_x2 - select_x1);
+      final int height = Math.abs(select_y2 - select_y1);
+      g.drawRect(x, y, width, height);
+      g.setPaintMode();
    }
 
    private void drawWire(int x, int y) {
